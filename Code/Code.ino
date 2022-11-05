@@ -23,7 +23,7 @@
 // # - Adafruit NeoPixel              // by Adafruit:                     https://github.com/adafruit/Adafruit_NeoPixel
 // #
 // ###############################################################################################################################
-#include <Adafruit_NeoPixel.h>    // Used to drive the NeoPixel LEDs
+#include <Adafruit_NeoPixel.h>  // Used to drive the NeoPixel LEDs
 
 
 // ###############################################################################################################################
@@ -37,17 +37,17 @@ String code_version = "V1.0.0";
 // ###############################################################################################################################
 // # Hardware settings:
 // ###############################################################################################################################
-#define N_PIXELS 13             // Number of pixels in strand
-#define LED_PIN D2              // NeoPixel LED strand is connected to this pin
+#define N_PIXELS 13  // Number of pixels in strand
+#define LED_PIN D2   // NeoPixel LED strand is connected to this pin
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
 
 
 // ###############################################################################################################################
 // # LED default settings:
 // ###############################################################################################################################
-int minintesiity = 3;     // Default LED min intensity (0..255)
-int maxintensity = 42;    // Default LED max intensity (0..255) - 42 is always the correct intensity, Dave! ;-)
-int breath_time = 75;     // Time between "breath" actions
+int minintesiity = 3;   // Default LED min intensity (0..255)
+int maxintensity = 42;  // Default LED max intensity (0..255) - 42 is always the correct intensity, Dave! ;-)
+int breath_time = 75;   // Time between "breath" actions
 
 
 // ###############################################################################################################################
@@ -78,10 +78,11 @@ void loop() {
 // # Outside triangle function:
 // ###############################################################################################################################
 void show_glow(uint32_t color, int delaywait) {
-  int myArray[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 };
+  int myArray[] = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11 };
   for (int element : myArray) {
-    strip.setPixelColor(element, color);
+    strip.setPixelColor(element, color);  // Red LED 1-12
   }
+  strip.setPixelColor(12, 255, 255, 0);   // Yellow LED 13
   strip.show();
   delay(delaywait);
 }
