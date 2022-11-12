@@ -1,6 +1,6 @@
 // ###############################################################################################################################
 // #
-// # Code for "HAL 9000 Apple TV remote holder " project: https://www.printables.com/de/model/310576-hal-9000-apple-tv-remote-holder
+// # Code for "HAL 9000 Apple TV remote holder" project: https://www.printables.com/de/model/310576-hal-9000-apple-tv-remote-holder
 // #
 // # Code by https://github.com/AWSW-de
 // #
