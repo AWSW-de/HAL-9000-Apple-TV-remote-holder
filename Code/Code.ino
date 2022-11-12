@@ -37,20 +37,21 @@
 // # Code version:
 // #
 // ###############################################################################################################################
-String code_version = "V1.0.0";
+String code_version = "V1.0.1";
 
 
 // ###############################################################################################################################
 // # Hardware settings:
 // ###############################################################################################################################
 #define N_PIXELS 1  // Number of pixels
-#define LED_PIN 32  // NeoPixel LED strand is connected to this pin
+#define LED_PIN 32  // NeoPixel LED pin
 //#define BUTTON_PIN_BITMASK3334 0x600000000 // 2^33 + 2^34 in hex
 #define BUTTON_PIN_1 33
-#define BUTTON_PIN_2 34
+// #define BUTTON_PIN_2 34                                      // NOT USED YET
 #define BUTTON_PIN_BITMASK1 0x200000000  // 2^33 in hex
-#define BUTTON_PIN_BITMASK2 0x400000000  // 2^34 in hex
+// #define BUTTON_PIN_BITMASK2 0x400000000  // 2^34 in hex      // NOT USED YET
 Adafruit_NeoPixel strip = Adafruit_NeoPixel(N_PIXELS, LED_PIN, NEO_GRB + NEO_KHZ800);
+
 
 // ###############################################################################################################################
 // # LED default settings:
@@ -60,14 +61,12 @@ int maxintensity = 192;  // Default LED max intensity (0..255)
 int breath_time = 15;    // Time between "breath" actions
 
 
-//#########################################################################################
+// #########################################################################################
+// # Method to print the reason by which ESP32 has been awaken from sleep:
+// #########################################################################################
 RTC_DATA_ATTR int bootCount = 0;
-//#########################################################################################
-/*
-  Method to print the reason by which ESP32
-  has been awaken from sleep
-*/
 void print_wakeup_reason() {
+  Serial.println("##### WAKE UP");
   esp_sleep_wakeup_cause_t wakeup_reason;
   wakeup_reason = esp_sleep_get_wakeup_cause();
   switch (wakeup_reason) {
@@ -75,17 +74,20 @@ void print_wakeup_reason() {
     case ESP_SLEEP_WAKEUP_EXT1:
       {
         Serial.println("Wakeup caused by external signal using RTC_CNTL");
-        esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK2, ESP_EXT1_WAKEUP_ANY_HIGH);
-        for (int i = 0; i < 6; i++) {
+        Serial.println("##### SHOW HAL");
+        esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK1, ESP_EXT1_WAKEUP_ANY_HIGH);
+        for (int i = 0; i < 2; i++) {
           for (int a = minintesiity; a < maxintensity; a++) {
             strip.setBrightness(a);
-            show_glow(strip.Color(255, 0, 0), breath_time);
+            show_LED(strip.Color(255, 0, 0), breath_time);
           }
           for (int b = maxintensity; b >= minintesiity; b--) {
             strip.setBrightness(b);
-            show_glow(strip.Color(255, 0, 0), breath_time);
+            show_LED(strip.Color(255, 0, 0), breath_time);
           }
         }
+        strip.setPixelColor(0, 0, 0, 0);  // RED LED OFF
+        strip.show();
         break;
       }
     case ESP_SLEEP_WAKEUP_TIMER: Serial.println("Wakeup caused by timer"); break;
@@ -94,7 +96,8 @@ void print_wakeup_reason() {
     default:
       {
         Serial.printf("Wakeup was not caused by deep sleep: %d\n", wakeup_reason);
-        esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK1, ESP_EXT1_WAKEUP_ALL_LOW);
+        Serial.println("##### DEFAULT BOOT");
+        esp_sleep_enable_ext1_wakeup(BUTTON_PIN_BITMASK1, ESP_EXT1_WAKEUP_ANY_HIGH);
         break;
       }
   }
@@ -106,27 +109,20 @@ void print_wakeup_reason() {
 // ###############################################################################################################################
 void setup() {
   Serial.begin(115200);
-  delay(500);  //Take some time to open up the Serial Monitor
-  //Increment boot number and print it every reboot
+  delay(500);
+  // Increment boot number and print it every reboot
   ++bootCount;
   Serial.println("Boot number: " + String(bootCount));
 
-  pinMode(BUTTON_PIN_1, INPUT_PULLUP);  // pinMode(buttonPin, INPUT with PULLUP resistor integrated in the ESP);
-  digitalWrite(BUTTON_PIN_1, HIGH);     // initialize the buttonPin as output
-  pinMode(BUTTON_PIN_2, INPUT_PULLUP);  // pinMode(buttonPin, INPUT with PULLUP resistor integrated in the ESP);
-  digitalWrite(BUTTON_PIN_2, HIGH);     // initialize the buttonPin as output
-
   strip.begin();
   strip.setBrightness(minintesiity);
-  if (bootCount == 3) {
-    Serial.println("Neustart!!!: " + String(bootCount));
-    ESP.restart();
-  }
-  //Print the wakeup reason for ESP32
+
+  // Print the wakeup reason for ESP32
   print_wakeup_reason();
-  //Go to sleep now
+
+  // Go to sleep now:
   Serial.println("Going to sleep now");
-  delay(1000);
+  delay(100);
   esp_deep_sleep_start();
   Serial.println("This will never be printed");
 }
@@ -141,9 +137,9 @@ void loop() {
 
 
 // ###############################################################################################################################
-// # Outside triangle function:
+// # LED function:
 // ###############################################################################################################################
-void show_glow(uint32_t color, int delaywait) {
+void show_LED(uint32_t color, int delaywait) {
   strip.setPixelColor(0, 255, 0, 0);  // RED LED
   strip.show();
   delay(delaywait);
